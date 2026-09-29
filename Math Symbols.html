@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2026 by anonymous (http://jsbin.com/xequrovaye/1/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mathematische Symbole</title>
+
+<style>
+:root{
+    --bg:#1e1e1e;
+    --card:#2d2d2d;
+    --hover:#3d3d3d;
+    --text:#ffffff;
+    --accent:#4caf50;
+}
+
+body{
+    margin:0;
+    padding:20px;
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:10px;
+}
+
+.info{
+    text-align:center;
+    color:#bbb;
+    margin-bottom:25px;
+}
+
+.category{
+    margin-bottom:35px;
+}
+
+.category h2{
+    border-bottom:2px solid #555;
+    padding-bottom:6px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(80px,1fr));
+    gap:10px;
+}
+
+.symbol{
+    background:var(--card);
+    border-radius:10px;
+    padding:15px 5px;
+    text-align:center;
+    cursor:pointer;
+    transition:0.15s;
+    user-select:none;
+}
+
+.symbol:hover{
+    background:var(--hover);
+}
+
+.char{
+    font-size:2rem;
+    line-height:1;
+}
+
+.name{
+    font-size:0.75rem;
+    margin-top:8px;
+    color:#bbb;
+}
+
+.copied{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    background:var(--accent);
+    color:white;
+    padding:10px 20px;
+    border-radius:6px;
+    opacity:0;
+    transition:0.25s;
+}
+</style>
+</head>
+<body>
+
+<h1>📚 Mathematische Symbole</h1>
+<div class="info">Tippe auf ein Symbol, um es in die Zwischenablage zu kopieren.</div>
+
+<div id="container"></div>
+
+<div id="toast" class="copied"></div>
+
+<script>
+const categories = {
+
+"Zahlen & Konstanten": [
+["π","Pi"],
+["ℯ","Euler"],
+["∞","Unendlich"],
+["∅","Leere Menge"],
+["ℕ","Natürliche"],
+["ℤ","Ganze"],
+["ℚ","Rationale"],
+["ℝ","Reelle"],
+["ℂ","Komplexe"]
+],
+
+"Mengenlehre": [
+["∈","Element"],
+["∉","Nicht Element"],
+["⊂","Teilmenge"],
+["⊆","Teilmenge="],
+["⊃","Obermenge"],
+["⊇","Obermenge="],
+["∪","Vereinigung"],
+["∩","Schnitt"],
+["∖","Differenz"],
+["∅","Leer"],
+["∀","Für alle"],
+["∃","Es gibt"],
+["∄","Es gibt nicht"]
+],
+
+"Logik": [
+["¬","Nicht"],
+["∧","Und"],
+["∨","Oder"],
+["⊻","XOR"],
+["⇒","Impliziert"],
+["⇔","Äquivalent"],
+["⊤","Wahr"],
+["⊥","Falsch"]
+],
+
+"Vergleich": [
+["≈","Ungefähr"],
+["≠","Ungleich"],
+["≡","Identisch"],
+["≤","Kleiner gleich"],
+["≥","Größer gleich"],
+["≪","Viel kleiner"],
+["≫","Viel größer"],
+["∝","Proportional"]
+],
+
+"Grundrechenarten": [
+["±","Plusminus"],
+["∓","Minusplus"],
+["×","Mal"],
+["÷","Geteilt"],
+["⋅","Punkt"],
+["√","Wurzel"],
+["∛","Kubikwurzel"],
+["∜","4. Wurzel"],
+["%","Prozent"]
+],
+
+"Analysis": [
+["∑","Summe"],
+["∏","Produkt"],
+["∫","Integral"],
+["∬","Doppelintegral"],
+["∭","Dreifachintegral"],
+["∂","Partielle Ableitung"],
+["∇","Nabla"],
+["Δ","Delta"],
+["∴","Daher"],
+["∵","Weil"],
+["lim","Limes"]
+],
+
+"Geometrie": [
+["∠","Winkel"],
+["°","Grad"],
+["⊥","Senkrecht"],
+["∥","Parallel"],
+["≅","Kongruent"],
+["△","Dreieck"],
+["□","Quadrat"],
+["○","Kreis"]
+],
+
+"Vektoren & Algebra": [
+["→","Pfeil"],
+["←","Links"],
+["↔","Beidseitig"],
+["⇑","Nach oben"],
+["⇓","Nach unten"],
+["⊗","Tensor"],
+["⊕","Direktsumme"],
+["⋆","Stern"],
+["⟨","Linke Klammer"],
+["⟩","Rechte Klammer"]
+],
+
+"Spezialzeichen": [
+["α","Alpha"],
+["β","Beta"],
+["γ","Gamma"],
+["δ","Delta"],
+["ε","Epsilon"],
+["θ","Theta"],
+["λ","Lambda"],
+["μ","My"],
+["σ","Sigma"],
+["φ","Phi"],
+["ω","Omega"],
+["Γ","Gamma G"],
+["Δ","Delta G"],
+["Θ","Theta G"],
+["Λ","Lambda G"],
+["Σ","Sigma G"],
+["Φ","Phi G"],
+["Ω","Omega G"]
+]
+
+};
+
+const container = document.getElementById("container");
+
+for (const [title, symbols] of Object.entries(categories)) {
+
+    const section = document.createElement("div");
+    section.className = "category";
+
+    section.innerHTML = `
+        <h2>${title}</h2>
+        <div class="grid">
+            ${symbols.map(
+                ([s,n]) => `
+                <div class="symbol" onclick="copySymbol('${s}')">
+                    <div class="char">${s}</div>
+                    <div class="name">${n}</div>
+                </div>`
+            ).join("")}
+        </div>
+    `;
+
+    container.appendChild(section);
+}
+
+async function copySymbol(symbol){
+    await navigator.clipboard.writeText(symbol);
+
+    const toast = document.getElementById("toast");
+    toast.textContent = `"${symbol}" kopiert`;
+    toast.style.opacity = "1";
+
+    setTimeout(() => {
+        toast.style.opacity = "0";
+    }, 1200);
+}
+</script>
+
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"480c9d8468c44ad3bed3c74fbcc6d6f3","r":1,"spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>
